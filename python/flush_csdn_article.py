@@ -140,6 +140,7 @@ def usage(program, description = ""):
     if description != "":
        print(description)
     print("Usage: %s [-h|--help] --fast=file --slow=file"%(program))
+    sys.exit(0)
 
 if __name__ == '__main__':
     try:
@@ -150,7 +151,7 @@ if __name__ == '__main__':
     username=""
     for name,value in options:
         if name in ("-h","--help"):
-            usage(sys.argv[0], )
+            usage(sys.argv[0])
         elif name in ("--fast"):
             fast_flush_file = value
         elif name in ("--slow"):
