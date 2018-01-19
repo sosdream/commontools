@@ -58,7 +58,6 @@ class Article:
         self.single_interval = single_interval
         self.errors = 0
         self.flush_succes_count = 0
-        self.continuous = 0
     def show(self):
         print("%s->[success %d, failed %d]"%(self.url,
                                             self.flush_succes_count,
@@ -68,16 +67,8 @@ class Article:
             if count > self.prev_read:
                 self.prev_flush_time = time.time()
                 self.flush_succes_count = self.flush_succes_count + 1
-                self.continuous = self.continuous + 1
-                if self.continuous > 10 and self.continuous < 50:
-                    self.single_interval = self.single_interval - 1
             else:
                 self.errors = self.errors + 1
-                if self.continuous < 10:
-                    self.continuous = 0
-                elif self.continuous < 50:
-                    # auto to learn the interval time is too short
-                    self.single_interval = self.single_interval + 1
         self.prev_read = count
         if count > self.flush_max_count:
             return False
@@ -128,6 +119,7 @@ class Flusher:
                 if try_num > self.article_all_num/2:
                     time.sleep(1)
                 continue
+
             f = request.urlopen(article.req)
             content = gzip_uncompress(f).decode("utf-8").split('\n')
             for line in content:
