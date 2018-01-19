@@ -110,6 +110,7 @@ class Flusher:
             self.slow_article_list.remove(article)
     def run(self):
         try_num = 0
+        
         while True:
             # random select one url to request
             article = select_article(self)
@@ -132,6 +133,7 @@ class Flusher:
             article.show()
             time.sleep(self.flush_interval)
             try_num = 0
+            f.close()
         pass
 
 def usage(program, description = ""):
