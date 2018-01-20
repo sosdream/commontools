@@ -30,9 +30,15 @@ def select_article(flusher):
     slow_articles = flusher.get_slow_articles()
     randnum = np.random.randint(0, 10)
     if randnum == 10:
+        if len(slow_articles) == 0: 
+            print("Warning: You don't config slow article!")
+            return None
         index = np.random.randint(0, len(slow_articles) - 1)
         article = slow_articles[index]
     else:
+        if len(fast_articles) == 0:
+            print("Warning: You don't config fast article!")
+            return None
         index = np.random.randint(0, len(fast_articles) - 1)
         article = fast_articles[index]
     
@@ -110,10 +116,16 @@ class Flusher:
             self.slow_article_list.remove(article)
     def run(self):
         try_num = 0
-        
+        fetal_errors = 0
         while True:
             # random select one url to request
             article = select_article(self)
+            if article == None:
+                fetal_errors = fetal_errors + 1
+                if fetal_errors > 10:
+                    print("Fetal Error: YOU DON'T CONFIG ATICLES!")
+                    sys.exit()
+                continue
             if article.canbe_flush() == False:
                 try_num = try_num + 1
                 if try_num > self.article_all_num/2:
@@ -171,6 +183,9 @@ if __name__ == '__main__':
             if line[0] == '#':
                 continue
             items = line.split(' ')
+            if len(items) < 0:
+                print("Warning: You don't config fast article!")
+                sys.exit()
             username = items[0].split('.')[2].split('/')[1]
             if len(items) == 3:
                 flusher.add_fast_flush_aticle(Article(items[0],
@@ -179,7 +194,6 @@ if __name__ == '__main__':
                                  single_interval = float(items[2])))
             else:
                 flusher.add_fast_flush_aticle(Article(items[0], username))
-
         f.close()
     except Exception as err:
         usage(sys.argv[0], "Parse fast config file error!")
@@ -194,6 +208,9 @@ if __name__ == '__main__':
             if line[0] == '#':
                 continue
             items = line.split(' ')
+            if len(items) < 0:
+                print("Warning: You don't config fast article!")
+                sys.exit()
             username = items[0].split('.')[2].split('/')[1]
             if len(items) == 3:
                 flusher.add_slow_flush_aticle(Article(items[0],
