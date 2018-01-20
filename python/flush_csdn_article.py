@@ -162,7 +162,11 @@ if __name__ == '__main__':
     # Construct articles
     flusher = Flusher()
     try:
-        f = open(fast_flush_file)
+        try:
+            f = open(fast_flush_file)
+        except Exception:
+            usage(sys.argv[0], "Open fast file Error!")
+            sys.exit()
         for line in f.readlines():
             if line[0] == '#':
                 continue
@@ -177,27 +181,31 @@ if __name__ == '__main__':
                 flusher.add_fast_flush_aticle(Article(items[0], username))
 
         f.close()
-    except Exception:
-        usage(sys.argv[0], "Open fast file Error!")
+    except Exception as err:
+        usage(sys.argv[0], "Parse fast config file error!")
         sys.exit()
     try:
-       f = open(slow_flush_file)
-       for line in f.readlines():
-           if line[0] == '#':
-               continue
-           items = line.split(' ')
-           username = items[0].split('.')[2].split('/')[1]
-           if len(items) == 3:
-               flusher.add_slow_flush_aticle(Article(items[0],
+        try:
+            f = open(slow_flush_file)
+        except Exception:
+            usage(sys.argv[0], "Open slow file error!")
+            sys.exit()
+        for line in f.readlines():
+            if line[0] == '#':
+                continue
+            items = line.split(' ')
+            username = items[0].split('.')[2].split('/')[1]
+            if len(items) == 3:
+                flusher.add_slow_flush_aticle(Article(items[0],
                                 username,
                                 max_count = int(items[1]),
                                 single_interval = float(items[2])))
-           else:
-               flusher.add_slow_flush_aticle(Article(items[0], username))
+            else:
+                flusher.add_slow_flush_aticle(Article(items[0], username))
 
-       f.close()
+        f.close()
     except Exception:
-        usage(sys.argv[0], "Open slow file error!")
+        usage(sys.argv[0], "Parse slow config file error!")
         sys.exit()
     # Make the flusher running
     flusher.run()
