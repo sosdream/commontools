@@ -175,12 +175,11 @@ if __name__ == '__main__':
                                  single_interval = float(items[2])))
             else:
                 flusher.add_fast_flush_aticle(Article(items[0], username))
-            pass
+
+        f.close()
     except Exception:
         usage(sys.argv[0], "Open fast file Error!")
         sys.exit()
-    finally:
-        f.close()
     try:
        f = open(slow_flush_file)
        for line in f.readlines():
@@ -195,12 +194,10 @@ if __name__ == '__main__':
                                 single_interval = float(items[2])))
            else:
                flusher.add_slow_flush_aticle(Article(items[0], username))
-           pass
+
+       f.close()
     except Exception:
         usage(sys.argv[0], "Open slow file error!")
         sys.exit()
-    finally:
-        f.close()
-    f.close()
     # Make the flusher running
     flusher.run()
