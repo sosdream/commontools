@@ -49,6 +49,8 @@ function usage() {
             "\t\tThis option is to start the shadowsocks server service\n"\
             "\t-c\n"\
             "\t\tThis option is to start the shadowsocks client service\n"\
+            "\t--speedup\n"\
+            "\t\tOptimizing the bandwidth(Only server!)\n"\
             "\t-h|--help\n"\
             "\t\tShow the help info\n"\
             "Server config example:\n"\
