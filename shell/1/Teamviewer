@@ -1,0 +1,109 @@
+#!/bin/bash
+
+BASE_PATH=$(pwd)
+function usage() {
+    if [[ $# -gt 1 ]];then
+        echo $1
+    fi
+    echo -e "Usage: ShadowConfig Options [Argument]\n"\
+            "Command option and parameter:\n"\
+            "\t--sport={port | [port_1,port_2, ..., port_n]}\n"\
+            "\t\tThis option is to set the service port for remote\n"\
+            "\t--lport={port | [port_1,port_2, ..., port_n]}\n"\
+            "\t\tThis option is to set the service port for local\n"\
+            "\t--sip=[ip|url]\n"\
+            "\t\tThis option is to set the ip of the server\n"\
+            "\t--lip=ip\n"\
+            "\t\tThis option is to set the ip of the local service\n"\
+            "\t--passwd password-str\n"\
+            "\t\tThis option is to set the password of the remote server\n"\
+            "\t-s\n"\
+            "\t\tThis option is to start the shadowsocks server service\n"\
+            "\t-c\n"\
+            "\t\tThis option is to start the shadowsocks client service\n"\
+            "\t--speedup\n"\
+            "\t\tOptimizing the bandwidth(Only server!)\n"\
+            "\t-h|--help\n"\
+            "\t\tShow the help info\n"\
+            "Server config example:\n"\
+            "\tsudo ./ShadowConfig --sport=[80,81,82,83] --sip=0.0.0.0 --passwd=example\n"\
+            "Client config example:\n"\
+            "\tsudo ./ShadowConfig --sport=80 --sip=yourip --lport=8080 --passwd=example"
+    exit 2
+
+}
+
+function DownloadTeamviewer() {
+	#TEAMVIEWER_DL_LINK="https://download.teamviewer.com/download/linux/teamviewer_amd64.deb"
+	TEAMVIEWER_DL_LINK="https://dl.teamviewer.com/download/linux/version_15x/teamviewer_15.8.3_amd64.deb"
+	TEAMVIEWER_PACKAGE=${TEAMVIEWER_DL_LINK##*/}
+	echo -n "Whether Download Teamviewer(Y/n)?:"
+    read DLTeamviewer
+    case "$DLTeamviewer" in
+        "N"|"n")
+            return 0
+        ;;
+    esac
+	command -v wget >/dev/null 2>&1 || { echo >&2 "I require wget but it's not installed.  Aborting.";}
+	wget ${TEAMVIEWER_DL_LINK} -O ${TEAMVIEWER_PACKAGE} 
+}
+
+function InstallTeamviewer() {
+	echo -n "Whether Install Teamviewer(Y/n)?:"
+    read InsTeamviewer
+    case "$InsTeamviewer" in
+        "N"|"n")
+            return 0
+        ;;
+    esac
+    if [[ ! -f ${BASE_PATH}/${TEAMVIEWER_PACKAGE} ]]; then
+    	echo -e "Package: ${BASE_PATH}/${TEAMVIEWER_PACKAGE} not found!"
+    	exit 1
+    fi
+    dpkg -i ${TEAMVIEWER_PACKAGE}
+    if [[ $? != 0 ]]; then
+    	apt-get install -f
+    	dpkg -i ${TEAMVIEWER_PACKAGE}
+    fi
+}
+
+function ConfigureTeamviewer() {
+	echo -n "Whether Configure Teamviewer(Y/n)?:"
+    read ConfTeamviewer
+    case "$ConfTeamviewer" in
+        "N"|"n")
+            return 0
+        ;;
+    esac
+	#type teamviewer >/dev/null 2>&1 || {echo >&2 "I require teamviewer but it's not installed.  Aborting."; exit 1;}
+	command -v teamviewer >/dev/null 2>&1 || { echo >&2 "I require teamviewer but it's not installed.  Aborting.";}
+	#teamviewer setup
+	teamviewer passwd $1
+	teamviewer info
+}
+
+function InstallDesktop() {
+	echo -n "Whether Install Desktop(Y/n)?:"
+    read InsDesktop
+    case "$InsDesktop" in
+        "N"|"n")
+            return 0
+        ;;
+    esac
+    #apt-get install xinit
+    #apt-get install lightdm
+    sudo apt-get install lubuntu-desktop #lxde
+	#apt-get install ubuntu-desktop
+	#  vi /usr/share/lightdm/lightdm.conf.d/50-ubuntu.conf
+	# greeter-show-manual-login=true      //允许切换用户登陆
+    # allow-guest=false    //禁用Guest
+    # /root/.profile
+    # tty -s && mesg n
+
+}
+
+function main() {
+    DownloadTeamviewer && InstallTeamviewer && ConfigureTeamviewer $1 && InstallDesktop
+}
+
+main $1
